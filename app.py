@@ -58,6 +58,8 @@ creds = service_account.Credentials.from_service_account_info(key_dict)
 project_id = key_dict["project_id"]
 db = firestore.Client(credentials=creds, project=project_id)
 
+# sleep_time_list = [60, 75, 75, 90, 60]
+sleep_time_list = [5, 5, 5, 5, 5]
 # 何かクエリを返す
 
 
@@ -90,7 +92,7 @@ def click_to_submit():
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
         # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
-        sleep(5)
+        sleep(sleep_time_list[st.session_state.talktime])
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         doc_ref = db.collection(str(st.session_state.user_id)).document(str(st.session_state.talktime))
         doc_ref.set({
@@ -184,5 +186,5 @@ def main():
         click_to_submit()
 
 if __name__ == "__main__":
-    st.title('チャットボット')
+    st.title('チャット対話実験：先攻')
     main()

@@ -1,0 +1,14 @@
+langchain == 0.3.7
+langchain-community == 0.3.5
+langchain-core == 0.3.15
+langchain-openai == 0.2.6
+langchain-text-splitters  == 0.3.2
+langsmith == 0.1.140
+openai == 1.54.3
+orjson == 3.10.11
+streamlit == 1.40.0
+streamlit-chat == 0.1.1
+google-cloud-firestore
+firebase_admin
+datetime
+pytz

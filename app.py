@@ -13,7 +13,7 @@ from langchain.prompts.chat import (
 # 時間管理
 from time import sleep
 import datetime
-import pytz # タイムゾーンに直せるやつ
+import pytz # タイムゾーン
 global now # PCから現在時刻
 now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
 
@@ -22,6 +22,31 @@ import firebase_admin
 from google.oauth2 import service_account
 from google.cloud import firestore
 import json
+
+# クエリ取得
+params = st.experimental_get_query_params()
+
+#
+# 例： http:/hogehoge?param1=euthanasia&param2=2
+# params = {
+#   "param1": [
+#     "euthanasia"
+#   ],
+#   "params": [
+#     "2"
+#   ]
+# }
+
+
+# プロンプト
+prompt_list = ["preprompt_pos_ind_euthanasia.txt"]
+fname = prompt_list[0] 
+with open(fname, 'r', encoding='utf-8') as f:
+    systemprompt = f.read()
+# 待機時間
+# sleep_time_list = [60, 75, 75, 90, 60]
+sleep_time_list = [5, 5, 5, 5, 5]
+
 
 # モデルのインスタンス生成
 chat = ChatOpenAI(
@@ -35,11 +60,6 @@ chat = ChatOpenAI(
 
 if not "memory" in st.session_state:
     st.session_state.memory = ConversationBufferWindowMemory(k=8, return_messages=True)
-
-# システムプロンプトを読み込み
-fname = "prompt.txt"
-with open(fname, 'r', encoding='utf-8') as f:
-    systemprompt = f.read()
 
 # プロンプト設定
 template = systemprompt
@@ -57,11 +77,6 @@ key_dict = json.loads(st.secrets["firebase"]["textkey"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
 project_id = key_dict["project_id"]
 db = firestore.Client(credentials=creds, project=project_id)
-
-# sleep_time_list = [60, 75, 75, 90, 60]
-sleep_time_list = [5, 5, 5, 5, 5]
-# 何かクエリを返す
-
 
 # ID入力
 def input_id():

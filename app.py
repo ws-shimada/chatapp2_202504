@@ -85,17 +85,14 @@ if "systemprompt" in st.session_state:
         MessagesPlaceholder(variable_name="history"),
         HumanMessagePromptTemplate.from_template("{input}")
     ])
-
-# チェインを設定
-conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
+    # チェインを設定
+    conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
 
 # Firebase 設定の読み込み
 key_dict = json.loads(st.secrets["firebase"]["textkey"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
 project_id = key_dict["project_id"]
 db = firestore.Client(credentials=creds, project=project_id)
-
-
 
 
 # 入力時の動作
@@ -161,8 +158,7 @@ def chat_page():
             会話は終了しました。以下のリンクをクリックしてアンケートに回答してください。  
             <a href="{url}" target="_blank">こちら</a>
             """,
-            unsafe_allow_html=True
-        )
+            unsafe_allow_html=True)
 
 def main():
     hide_streamlit_style = """

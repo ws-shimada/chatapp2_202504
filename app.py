@@ -40,13 +40,9 @@ params = st.experimental_get_query_params()
 
 # プロンプト
 prompt_list = ["preprompt_pos_ind_nuclear.txt", "preprompt_neg_bin_nuclear.txt"]
-fname = st.session_state.chosenprompt
-with open(fname, 'r', encoding='utf-8') as f:
-    systemprompt = f.read()
 # 待機時間
 # sleep_time_list = [60, 75, 75, 90, 60]
 sleep_time_list = [5, 5, 5, 5, 5]
-
 
 # モデルのインスタンス生成
 chat = ChatOpenAI(
@@ -60,23 +56,6 @@ chat = ChatOpenAI(
 
 if not "memory" in st.session_state:
     st.session_state.memory = ConversationBufferWindowMemory(k=8, return_messages=True)
-
-# プロンプト設定
-template = systemprompt
-st.session_state.prompt = ChatPromptTemplate.from_messages([
-    SystemMessagePromptTemplate.from_template(template),
-    MessagesPlaceholder(variable_name="history"),
-    HumanMessagePromptTemplate.from_template("{input}")
-])
-
-# チェインを設定
-conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
-
-# Firebase 設定の読み込み
-key_dict = json.loads(st.secrets["firebase"]["textkey"])
-creds = service_account.Credentials.from_service_account_info(key_dict)
-project_id = key_dict["project_id"]
-db = firestore.Client(credentials=creds, project=project_id)
 
 # ID入力
 def input_id():
@@ -92,9 +71,32 @@ def input_id():
             type="primary")
     if submit_id:
         st.session_state.user_id = user_id
-        st.session_state.chosenprompt = option
+        fname = option
+        with open(fname, 'r', encoding='utf-8') as f:
+            st.session_state.systemprompt = f.read()
         st.session_state.state = 2
         st.rerun()
+
+# プロンプト設定
+if "systemprompt" in st.session_state:
+    template = st.session_state.systemprompt
+    st.session_state.prompt = ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(template),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{input}")
+    ])
+
+# チェインを設定
+conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
+
+# Firebase 設定の読み込み
+key_dict = json.loads(st.secrets["firebase"]["textkey"])
+creds = service_account.Credentials.from_service_account_info(key_dict)
+project_id = key_dict["project_id"]
+db = firestore.Client(credentials=creds, project=project_id)
+
+
+
 
 # 入力時の動作
 def click_to_submit():

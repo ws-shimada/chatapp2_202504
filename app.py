@@ -39,7 +39,7 @@ params = st.experimental_get_query_params()
 
 
 # プロンプト
-prompt_list = ["preprompt_pos_ind_nuclear.txt", "preprompt_neg_bin_nuclear.txt"]
+prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
 # 待機時間
 # sleep_time_list = [60, 75, 75, 90, 60]
 sleep_time_list = [5, 5, 5, 5, 5]

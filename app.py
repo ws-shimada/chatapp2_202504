@@ -63,14 +63,14 @@ def input_id():
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
         option = st.selectbox(
-            "プロンプト選択※テスト用フォーム",
+            "プロンプトファイル選択※テスト用フォーム",
             ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
         user_id = st.text_input('idを入力してください')
         submit_id = st.form_submit_button(
             label="送信",
             type="primary")
     if submit_id:
-        st.session_state.user_id = user_id
+        st.session_state.user_id = str(user_id)
         fname = option
         with open(fname, 'r', encoding='utf-8') as f:
             st.session_state.systemprompt = f.read()

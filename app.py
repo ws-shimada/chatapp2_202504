@@ -39,8 +39,8 @@ params = st.experimental_get_query_params()
 
 
 # プロンプト
-prompt_list = ["preprompt_pos_ind_euthanasia.txt"]
-fname = prompt_list[0] 
+prompt_list = ["preprompt_pos_ind_nuclear.txt", "preprompt_neg_bin_nuclear.txt"]
+fname = st.session_state.chosenprompt
 with open(fname, 'r', encoding='utf-8') as f:
     systemprompt = f.read()
 # 待機時間
@@ -83,12 +83,16 @@ def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
+        option = st.selectbox(
+            "プロンプト選択※テスト用フォーム",
+            ("prompt_list[0]", "prompt_list[1]"),)
         user_id = st.text_input('idを入力してください')
         submit_id = st.form_submit_button(
             label="送信",
             type="primary")
     if submit_id:
         st.session_state.user_id = user_id
+        st.session_state.chosenprompt = option
         st.session_state.state = 2
         st.rerun()
 

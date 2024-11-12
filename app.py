@@ -24,8 +24,7 @@ from google.cloud import firestore
 import json
 
 # クエリ取得
-params = st.experimental_get_query_params()
-
+params = st.query_params()
 #
 # 例： http:/hogehoge?param1=euthanasia&param2=2
 # params = {
@@ -110,7 +109,7 @@ def click_to_submit():
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
         # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
-        sleep(sleep_time_list[st.session_state.talktime])
+        sleep(sleep_time_list[st.session_state.talktime]) # or sleep(len(st.session_state.response))
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         doc_ref = db.collection(str(st.session_state.user_id)).document(str(st.session_state.talktime))
         doc_ref.set({

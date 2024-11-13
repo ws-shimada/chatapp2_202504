@@ -134,7 +134,10 @@ def chat_page():
             st.session_state.user_input = "hogehoge"
         with st.container():
             with st.form("chat_form", clear_on_submit=True, enter_to_submit=False):
-                user_input = st.text_area()
+                if st.session_state.talktime == 0:
+                    user_input = st.text_area(text_list[0])
+                else:
+                    user_input = st.text_area(text_list[1])
                 submit_msg = st.form_submit_button(
                     label="送信",
                     type="primary")

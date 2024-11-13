@@ -146,7 +146,7 @@ def chat_page():
                     type="primary")
             if submit_msg:
                 st.session_state.user_input = user_input
-                st.session_state.log.append("time":st.session_state.talktime, "role": "user", "content": st.session_state.user_input})
+                st.session_state.log.append({"time":st.session_state.talktime, "role": "user", "content": st.session_state.user_input})
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 5:

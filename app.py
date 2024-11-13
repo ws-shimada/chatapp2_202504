@@ -47,7 +47,7 @@ def input_id():
             ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
         model_option = st.selectbox(
             "GPTモデル選択※テスト用フォーム",
-            ("{}".format(model_list[0]), "{}".format(model_list[1], "{}".format(model_list[2])),)
+            ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
         user_id = st.text_input('学籍番号を入力してください')
         submit_id = st.form_submit_button(
             label="送信",

@@ -25,40 +25,38 @@ import json
 
 # プロンプト
 prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
+# モデル
+model_list = ["gpt-4-preview", "gpt-4o", "gpt-4o-mini"]
 # 待機時間
 # sleep_time_list = [60, 75, 75, 90, 60]
 sleep_time_list = [5, 5, 5, 5, 5]
+# 表示テキスト
+text_lisy = ['「原子力発電を廃止すべきか否か」"という意見に対して、あなたの意見を入力し、送信ボタンを押してください', 'あなたの意見を入力し、送信ボタンを押してください']
 
-# モデルのインスタンス生成
-chat = ChatOpenAI(
-    model="gpt-4o",
-    temperature=0,
-    max_tokens=None,
-    timeout=None,
-    max_retries=0,
-    api_key= st.secrets.openai_api_key
-)
-
+# メモリ設定
 if not "memory" in st.session_state:
     st.session_state.memory = ConversationBufferWindowMemory(k=8, return_messages=True)
 
-# ID入力
+# ID入力※テスト用
 def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
-        option = st.selectbox(
+        prompt_option = st.selectbox(
             "プロンプトファイル選択※テスト用フォーム",
             ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
-        user_id = st.text_input('idを入力してください')
+        model_option = st.selectbox(
+            "GPTモデル選択※テスト用フォーム",
+            ("{}".format(model_list[0]), "{}".format(model_list[1], "{}".format(model_list[2])),)
+        user_id = st.text_input('学籍番号を入力してください')
         submit_id = st.form_submit_button(
             label="送信",
             type="primary")
     if submit_id:
-        st.session_state.user_id = str(user_id)
-        fname = option
-        with open(fname, 'r', encoding='utf-8') as f:
+        with open(prompt_option, 'r', encoding='utf-8') as f:
             st.session_state.systemprompt = f.read()
+        st.session_state.model = model_option
+        st.session_state.user_id = str(user_id)
         st.session_state.state = 2
         st.rerun()
 
@@ -70,6 +68,17 @@ if "systemprompt" in st.session_state:
         MessagesPlaceholder(variable_name="history"),
         HumanMessagePromptTemplate.from_template("{input}")
     ])
+# モデル設定
+if "model" in st.session_state:
+    # モデルのインスタンス生成
+    chat = ChatOpenAI(
+        model=st.session_state.model,
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=0,
+        api_key= st.secrets.openai_api_key
+    )
     # チェインを設定
     conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
 
@@ -78,7 +87,6 @@ key_dict = json.loads(st.secrets["firebase"]["textkey"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
 project_id = key_dict["project_id"]
 db = firestore.Client(credentials=creds, project=project_id)
-
 
 # 入力時の動作
 def click_to_submit():
@@ -121,12 +129,12 @@ def chat_page():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
             else:
                 message(msg["content"], is_user=False, avatar_style="micah")
-    if st.session_state.talktime < 5:
+    if st.session_state.talktime < 8:
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"
         with st.container():
             with st.form("chat_form", clear_on_submit=True, enter_to_submit=False):
-                user_input = st.text_area('意見を入力して下さい')
+                user_input = st.text_area()
                 submit_msg = st.form_submit_button(
                     label="送信",
                     type="primary")
@@ -135,13 +143,12 @@ def chat_page():
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
                 st.session_state.state = 3
                 st.rerun()
-    elif st.session_state.talktime == 5:
+    elif st.session_state.talktime == 8:
         url = "https://www.nagoya-u.ac.jp/"
-        # url = "https://survey.qualtrics.com/jfe/form/SV_123456789?ソース=Facebook&Campaign=モバイル"
         st.markdown(
             f"""
-            会話は終了しました。以下のリンクをクリックしてアンケートに回答してください。  
-            <a href="{url}" target="_blank">こちら</a>
+            会話は終了しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。  
+            <a href="{url}" target="_blank">アンケートに戻る</a>
             """,
             unsafe_allow_html=True)
 

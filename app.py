@@ -188,5 +188,4 @@ def main():
         click_to_submit()
 
 if __name__ == "__main__":
-    st.title('チャット対話実験：先攻')
     main()

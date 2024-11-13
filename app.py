@@ -45,7 +45,7 @@ sleep_time_list = [5, 5, 5, 5, 5]
 
 # モデルのインスタンス生成
 chat = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4o",
     temperature=0,
     max_tokens=None,
     timeout=None,

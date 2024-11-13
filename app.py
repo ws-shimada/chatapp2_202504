@@ -28,16 +28,15 @@ prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_n
 # モデル
 model_list = ["gpt-4-preview", "gpt-4o", "gpt-4o-mini"]
 # 待機時間
-# sleep_time_list = [60, 75, 75, 90, 60]
-sleep_time_list = [5, 5, 5, 5, 5]
+sleep_time_list = [5, 5, 5, 5, 5, 5, 5, 5]
 # 表示テキスト
-text_lisy = ['「原子力発電を廃止すべきか否か」"という意見に対して、あなたの意見を入力し、送信ボタンを押してください', 'あなたの意見を入力し、送信ボタンを押してください']
+text_list = ['「原子力発電を廃止すべきか否か」"という意見に対して、あなたの意見を入力し、送信ボタンを押してください。', 'あなたの意見を入力し、送信ボタンを押してください。']
 
 # メモリ設定
 if not "memory" in st.session_state:
     st.session_state.memory = ConversationBufferWindowMemory(k=8, return_messages=True)
 
-# ID入力※テスト用
+# ID入力※テスト用フォーム
 def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
@@ -48,7 +47,7 @@ def input_id():
         model_option = st.selectbox(
             "GPTモデル選択※テスト用フォーム",
             ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
-        user_id = st.text_input('学籍番号を入力してください')
+        user_id = st.text_input('学籍番号を入力し、送信ボタンを押してください')
         submit_id = st.form_submit_button(
             label="送信",
             type="primary")
@@ -68,6 +67,7 @@ if "systemprompt" in st.session_state:
         MessagesPlaceholder(variable_name="history"),
         HumanMessagePromptTemplate.from_template("{input}")
     ])
+
 # モデル設定
 if "model" in st.session_state:
     # モデルのインスタンス生成
@@ -98,19 +98,19 @@ def click_to_submit():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
             else:
                 message(msg["content"], is_user=False, avatar_style="micah")
-    with st.spinner("相手の返信を待っています…。"):
+    with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
         # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
-        sleep(sleep_time_list[st.session_state.talktime]) # or sleep(len(st.session_state.response))
+        sleep(sleep_time_list[st.session_state.talktime])
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         doc_ref = db.collection(str(st.session_state.user_id)).document(str(st.session_state.talktime))
         doc_ref.set({
             "Human": st.session_state.user_input,
-            "AI_": st.session_state.response,
-            "Human_meg_sended": st.session_state.send_time,
-            "AI_meg_returned": st.session_state.return_time,
+            "AI": st.session_state.response,
+            "Human_msg_sended": st.session_state.send_time,
+            "AI_msg_returned": st.session_state.return_time,
         })
         st.session_state.talktime += 1
         st.session_state.state = 2
@@ -150,7 +150,7 @@ def chat_page():
         url = "https://www.nagoya-u.ac.jp/"
         st.markdown(
             f"""
-            会話は終了しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。  
+            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。  
             <a href="{url}" target="_blank">アンケートに戻る</a>
             """,
             unsafe_allow_html=True)

@@ -154,7 +154,7 @@ def chat_page():
                 system_tokens = encoding.encode(template)
                 st.session_state.total_tokens += len(system_tokens)
                 for msg in st.session_state.log:
-                    tokens = encoding.encode(message["content"])
+                    tokens = encoding.encode(msg["content"])
                     st.session_state.total_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()

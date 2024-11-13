@@ -23,6 +23,9 @@ from google.oauth2 import service_account
 from google.cloud import firestore
 import json
 
+
+import tiktoken
+
 # プロンプト
 prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
 # モデル
@@ -30,7 +33,7 @@ model_list = ["gpt-4-1106-preview", "gpt-4o", "gpt-4o-mini"]
 # 待機時間
 sleep_time_list = [5, 5, 5, 5, 5, 5, 5, 5]
 # 表示テキスト
-text_list = ['「原子力発電を廃止すべきか否か」"という意見に対して、あなたの意見を入力し、送信ボタンを押してください。', 'あなたの意見を入力し、送信ボタンを押してください。']
+text_list = ['「原子力発電を廃止すべきか否か」という意見に対して、あなたの意見を入力し、送信ボタンを押してください。', 'あなたの意見を入力し、送信ボタンを押してください。']
 
 # メモリ設定
 if not "memory" in st.session_state:
@@ -81,6 +84,8 @@ if "model" in st.session_state:
     )
     # チェインを設定
     conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
+    encoding = tiktoken.encoding_for_model(st.session_state.model)
+
 
 # Firebase 設定の読み込み
 key_dict = json.loads(st.secrets["firebase"]["textkey"])
@@ -144,13 +149,21 @@ def chat_page():
             if submit_msg:
                 st.session_state.user_input = user_input
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
+                if not "total_tokens" in st.session_state:
+                    st.session_state.total_token = 0
+                system_tokens = encoding.encode(template)
+                st.session_state.total_tokens += len(system_tokens)
+                for msg in session_state.log:
+                    tokens = encoding.encode(message["content"])
+                    st.session_state.total_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 8:
         url = "https://www.nagoya-u.ac.jp/"
+        st.write("total token is: {}".format(st.session_state.total_tokens))
         st.markdown(
             f"""
-            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。  
+            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。
             <a href="{url}" target="_blank">アンケートに戻る</a>
             """,
             unsafe_allow_html=True)

@@ -24,7 +24,7 @@ from google.cloud import firestore
 import json
 
 # クエリ取得
-params = st.query_params()
+# params = st.query_params()
 #
 # 例： http:/hogehoge?param1=euthanasia&param2=2
 # params = {

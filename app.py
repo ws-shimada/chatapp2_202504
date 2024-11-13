@@ -23,20 +23,6 @@ from google.oauth2 import service_account
 from google.cloud import firestore
 import json
 
-# クエリ取得
-# params = st.query_params()
-#
-# 例： http:/hogehoge?param1=euthanasia&param2=2
-# params = {
-#   "param1": [
-#     "euthanasia"
-#   ],
-#   "params": [
-#     "2"
-#   ]
-# }
-
-
 # プロンプト
 prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
 # 待機時間

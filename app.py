@@ -150,7 +150,7 @@ def chat_page():
                 st.session_state.user_input = user_input
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
                 if not "total_tokens" in st.session_state:
-                    st.session_state.total_token = 0
+                    st.session_state.total_tokens = 0
                 system_tokens = encoding.encode(template)
                 st.session_state.total_tokens += len(system_tokens)
                 for msg in session_state.log:

@@ -108,7 +108,7 @@ def click_to_submit():
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
         # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
-        st.session_state.log.append({"time":st.session_state.talktime, "role": "AI", "content": st.session_state.response})
+        st.session_state.log.append({"key":st.session_state.talktime, "role": "AI", "content": st.session_state.response})
         sleep(sleep_time_list[st.session_state.talktime]) # or sleep(len(st.session_state.response))
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         doc_ref = db.collection(str(st.session_state.user_id)).document(str(st.session_state.talktime))
@@ -146,7 +146,7 @@ def chat_page():
                     type="primary")
             if submit_msg:
                 st.session_state.user_input = user_input
-                st.session_state.log.append({"time":st.session_state.talktime, "role": "user", "content": st.session_state.user_input})
+                st.session_state.log.append({"key":st.session_state.talktime, "role": "user", "content": st.session_state.user_input})
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 5:

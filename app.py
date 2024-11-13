@@ -26,7 +26,7 @@ import json
 # プロンプト
 prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
 # モデル
-model_list = ["gpt-4-preview", "gpt-4o", "gpt-4o-mini"]
+model_list = ["gpt-4-1106-preview", "gpt-4o", "gpt-4o-mini"]
 # 待機時間
 sleep_time_list = [5, 5, 5, 5, 5, 5, 5, 5]
 # 表示テキスト

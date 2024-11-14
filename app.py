@@ -57,7 +57,7 @@ def input_id():
             label="送信",
             type="primary")
     if submit_id:
-        with open(prompt_option, 'r', encoding='utf-8') as f:
+        with open(prompt_list[0], 'r', encoding='utf-8') as f:
             st.session_state.systemprompt = f.read()
         st.session_state.model = model_option
         st.session_state.user_id = str(user_id)
@@ -66,7 +66,7 @@ def input_id():
 
 # プロンプト設定
 if "systemprompt" in st.session_state:
-    template = prompt_list[0] # st.session_state.systemprompt
+    template = st.session_state.systemprompt # st.session_state.systemprompt
     st.session_state.prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(template),
         MessagesPlaceholder(variable_name="history"),

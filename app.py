@@ -55,7 +55,7 @@ def input_id():
             label="送信",
             type="primary")
     if submit_id:
-        with open(prompt_list[0], 'r', encoding='utf-8') as f:
+        with open(prompt_list[1], 'r', encoding='utf-8') as f:
             st.session_state.systemprompt = f.read()
         st.session_state.model = model_option
         st.session_state.user_id = str(user_id)
@@ -177,7 +177,7 @@ def chat_page():
         # st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
         st.markdown(
             f"""
-            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。
+            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。\nアンケートページは別のタブで開きます。\n
             <a href="{url}" target="_blank">アンケートに戻る</a>
             """,
             unsafe_allow_html=True)

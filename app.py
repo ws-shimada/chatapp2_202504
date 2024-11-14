@@ -106,7 +106,7 @@ def click_to_submit():
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
-        if not "total_output_tokens" in session.state:
+        if not "total_output_tokens" in session_state:
             st.session_state.total_output_tokens = 0
         st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
         st.session_state.total_output_tokens += st.session_state.output_tokens

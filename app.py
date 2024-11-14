@@ -138,8 +138,9 @@ def chat_page():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
             else:
                 message(msg["content"], is_user=False, avatar_style="micah")
-        st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
-        st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
+        if "input_tokens" in st.session_state:
+            st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
+            st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
     if st.session_state.talktime < 8:
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"

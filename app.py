@@ -98,11 +98,11 @@ def click_to_submit():
     # 待機中にも履歴を表示
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for msg in [d for d in st.session_state.log if d.get("key") == st.session_state.talktime]:
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg.get("content"), is_user=True, avatar_style="adventurer", seed="Nala")
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg.get("content"), is_user=False, avatar_style="micah")
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
@@ -111,7 +111,7 @@ def click_to_submit():
             # st.session_state.total_output_tokens = 0
         # st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
         # st.session_state.total_output_tokens += st.session_state.output_tokens
-        st.session_state.log.append({"role": "AI", "content": st.session_state.response})
+        st.session_state.log.append({"key": st.session_state.talktime, "role": "AI", "content": st.session_state.response})
         sleep(sleep_time_list[st.session_state.talktime])
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         doc_ref = db.collection(str(st.session_state.user_id)).document(str(st.session_state.talktime))
@@ -133,11 +133,11 @@ def chat_page():
         st.session_state.log = []
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for msg in [d for d in st.session_state.log if d.get("key") == st.session_state.talktime]:
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg.get("content"), is_user=True, avatar_style="adventurer", seed="Nala")
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg.get("content"), is_user=False, avatar_style="micah")
         # print token
         # if "input_tokens" in st.session_state:
             # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
@@ -156,7 +156,7 @@ def chat_page():
                     type="primary")
             if submit_msg:
                 st.session_state.user_input = user_input
-                st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
+                st.session_state.log.append({"key": st.session_state.talktime, "role": "user", "content": st.session_state.user_input})
                 # count token
                 # if not "total_input_tokens" in st.session_state:
                     # st.session_state.total_input_tokens = 0

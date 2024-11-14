@@ -44,9 +44,11 @@ def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
+        '''
         prompt_option = st.selectbox(
             "プロンプトファイル選択※テスト用フォーム",
             ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
+        '''
         model_option = st.selectbox(
             "モデル選択※テスト用フォーム",
             ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
@@ -64,7 +66,7 @@ def input_id():
 
 # プロンプト設定
 if "systemprompt" in st.session_state:
-    template = st.session_state.systemprompt
+    template = prompt_list[0] # st.session_state.systemprompt
     st.session_state.prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(template),
         MessagesPlaceholder(variable_name="history"),
@@ -106,10 +108,13 @@ def click_to_submit():
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
+        '''
+        # count token
         if not "total_output_tokens" in st.session_state:
             st.session_state.total_output_tokens = 0
         st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
         st.session_state.total_output_tokens += st.session_state.output_tokens
+        '''
         # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
         sleep(sleep_time_list[st.session_state.talktime])
@@ -138,9 +143,12 @@ def chat_page():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
             else:
                 message(msg["content"], is_user=False, avatar_style="micah")
+        '''
+        # print token
         if "input_tokens" in st.session_state:
             st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
             st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
+        '''
     if st.session_state.talktime < 8:
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"
@@ -156,6 +164,8 @@ def chat_page():
             if submit_msg:
                 st.session_state.user_input = user_input
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
+                '''
+                # count token
                 if not "total_input_tokens" in st.session_state:
                     st.session_state.total_input_tokens = 0
                 st.session_state.input_tokens = 0
@@ -166,10 +176,12 @@ def chat_page():
                     tokens = encoding.encode(msg["content"])
                     st.session_state.input_tokens += len(tokens)
                     st.session_state.total_input_tokens += len(tokens)
+                '''
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 8:
         url = "https://www.nagoya-u.ac.jp/"
+        # print total token counts
         st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))
         st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
         st.markdown(

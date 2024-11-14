@@ -106,14 +106,11 @@ def click_to_submit():
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
-        '''
         # count token
-        if not "total_output_tokens" in st.session_state:
-            st.session_state.total_output_tokens = 0
-        st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
-        st.session_state.total_output_tokens += st.session_state.output_tokens
-        '''
-        # st.session_state.memory.save_context({"input": st.session_state.user_input}, {"output": st.session_state.response})
+        # if not "total_output_tokens" in st.session_state:
+            # st.session_state.total_output_tokens = 0
+        # st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
+        # st.session_state.total_output_tokens += st.session_state.output_tokens
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
         sleep(sleep_time_list[st.session_state.talktime])
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
@@ -141,12 +138,10 @@ def chat_page():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
             else:
                 message(msg["content"], is_user=False, avatar_style="micah")
-        '''
         # print token
-        if "input_tokens" in st.session_state:
-            st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
-            st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
-        '''
+        # if "input_tokens" in st.session_state:
+            # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
+            # st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
     if st.session_state.talktime < 8:
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"
@@ -162,26 +157,24 @@ def chat_page():
             if submit_msg:
                 st.session_state.user_input = user_input
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
-                '''
                 # count token
-                if not "total_input_tokens" in st.session_state:
-                    st.session_state.total_input_tokens = 0
-                st.session_state.input_tokens = 0
-                system_tokens = encoding.encode(template)
-                st.session_state.input_tokens += len(system_tokens)
-                st.session_state.total_input_tokens += len(system_tokens)
-                for msg in st.session_state.log:
-                    tokens = encoding.encode(msg["content"])
-                    st.session_state.input_tokens += len(tokens)
-                    st.session_state.total_input_tokens += len(tokens)
-                '''
+                # if not "total_input_tokens" in st.session_state:
+                    # st.session_state.total_input_tokens = 0
+                # st.session_state.input_tokens = 0
+                # system_tokens = encoding.encode(template)
+                # st.session_state.input_tokens += len(system_tokens)
+                # st.session_state.total_input_tokens += len(system_tokens)
+                # for msg in st.session_state.log:
+                    # tokens = encoding.encode(msg["content"])
+                    # st.session_state.input_tokens += len(tokens)
+                    # st.session_state.total_input_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 8:
         url = "https://www.nagoya-u.ac.jp/"
         # print total token counts
-        st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))
-        st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
+        # st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))
+        # st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
         st.markdown(
             f"""
             会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。

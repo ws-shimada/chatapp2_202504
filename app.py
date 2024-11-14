@@ -177,7 +177,8 @@ def chat_page():
         # st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
         st.markdown(
             f"""
-            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。\nアンケートページは別のタブで開きます。\n
+            会話が規定回数に達しました。以下の"アンケートに戻る"をクリックして、アンケートに回答してください。
+            アンケートページは別のタブで開きます。
             <a href="{url}" target="_blank">アンケートに戻る</a>
             """,
             unsafe_allow_html=True)

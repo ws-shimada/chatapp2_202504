@@ -44,11 +44,9 @@ def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
-        '''
-        prompt_option = st.selectbox(
-            "プロンプトファイル選択※テスト用フォーム",
-            ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
-        '''
+        # prompt_option = st.selectbox(
+            # "プロンプトファイル選択※テスト用フォーム",
+            # ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
         model_option = st.selectbox(
             "モデル選択※テスト用フォーム",
             ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)

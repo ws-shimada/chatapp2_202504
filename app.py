@@ -171,7 +171,7 @@ def chat_page():
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 8:
-        url = "https://www.nagoya-u.ac.jp/"
+        url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_87jQ6Hj2rjLDdSm"
         # print total token counts
         # st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))
         # st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))

@@ -79,8 +79,7 @@ if "model" in st.session_state:
     # チェインを設定
     st.session_state.runnable = st.session_state.prompt | chat
     # メモリ初期化
-    if not "store" in st.session_state:
-        st.session_state.store = {}
+    st.session_state.store = {}
     def get_session_history(session_id: str) -> BaseChatMessageHistory:
         if session_id not in st.session_state.store:
             st.session_state.store[session_id] = ChatMessageHistory()

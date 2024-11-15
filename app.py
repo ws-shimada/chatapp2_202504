@@ -4,8 +4,6 @@ from streamlit_chat import message
 
 # library langchain
 from langchain_openai.chat_models import ChatOpenAI
-# from langchain.chains import ConversationChain
-# from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import (
@@ -41,18 +39,11 @@ sleep_time_list = [5, 5, 5, 5, 5, 5, 5, 5]
 # 表示テキスト
 text_list = ['「原子力発電を廃止すべきか否か」という意見に対して、あなたの意見を入力し、送信ボタンを押してください。', 'あなたの意見を入力し、送信ボタンを押してください。']
 
-
 # ID入力※テスト用フォーム
 def input_id():
     if not "user_id" in st.session_state:
         st.session_state.user_id = "hogehoge"
     with st.form("id_form", enter_to_submit=False):
-        # prompt_option = st.selectbox(
-            # "プロンプトファイル選択※テスト用フォーム",
-            # ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
-        # model_option = st.selectbox(
-            # "モデル選択※テスト用フォーム",
-            # ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
         user_id = st.text_input('学籍番号を入力し、送信ボタンを押してください')
         submit_id = st.form_submit_button(
             label="送信",
@@ -74,40 +65,7 @@ if "systemprompt" in st.session_state:
         HumanMessagePromptTemplate.from_template("{input}")
     ])
 
-
-# ID入力※テスト用フォーム
-def input_id():
-    if not "user_id" in st.session_state:
-        st.session_state.user_id = "hogehoge"
-    with st.form("id_form", enter_to_submit=False):
-        # prompt_option = st.selectbox(
-            # "プロンプトファイル選択※テスト用フォーム",
-            # ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
-        # model_option = st.selectbox(
-            # "モデル選択※テスト用フォーム",
-            # ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
-        user_id = st.text_input('学籍番号を入力し、送信ボタンを押してください')
-        submit_id = st.form_submit_button(
-            label="送信",
-            type="primary")
-    if submit_id:
-        with open(prompt_list[1], 'r', encoding='utf-8') as f:
-            st.session_state.systemprompt = f.read()
-        st.session_state.model = model_list[0]
-        st.session_state.user_id = str(user_id)
-        st.session_state.state = 2
-        st.rerun()
-
-# プロンプト設定
-if "systemprompt" in st.session_state:
-    template = st.session_state.systemprompt # st.session_state.systemprompt
-    st.session_state.prompt = ChatPromptTemplate.from_messages([
-        SystemMessagePromptTemplate.from_template(template),
-        MessagesPlaceholder(variable_name="history"),
-        HumanMessagePromptTemplate.from_template("{input}")
-    ])
-
-# モデル設定
+# 会話設定
 if "model" in st.session_state:
     # モデルのインスタンス生成
     chat = ChatOpenAI(
@@ -120,7 +78,9 @@ if "model" in st.session_state:
     )
     # チェインを設定
     st.session_state.runnable = st.session_state.prompt | chat
-    st.session_state.store = {}
+    # メモリ初期化
+    if not "store" in st.session_state:
+        st.session_state.store = {}
     def get_session_history(session_id: str) -> BaseChatMessageHistory:
         if session_id not in st.session_state.store:
             st.session_state.store[session_id] = ChatMessageHistory()
@@ -156,12 +116,6 @@ def click_to_submit():
                                                             config={"configurable": {"session_id": st.session_state.user_id}},
                                                            )
         st.session_state.response = st.session_state.response.content
-        # st.session_state.response = conversation.predict(input=st.session_state.user_input)
-        # count token
-        # if not "total_output_tokens" in st.session_state:
-            # st.session_state.total_output_tokens = 0
-        # st.session_state.output_tokens = len(encoding.encode(st.session_state.response))
-        # st.session_state.total_output_tokens += st.session_state.output_tokens
         st.session_state.log.append({"role": "AI", "content": st.session_state.response})
         sleep(sleep_time_list[st.session_state.talktime])
         st.session_state.return_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
@@ -192,10 +146,6 @@ def chat_page():
                 message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala", key = "user_{}".format(i))
             else:
                 message(msg["content"], is_user=False, avatar_style="micah", key = "ai_{}".format(i))
-        # print token
-        # if "input_tokens" in st.session_state:
-            # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
-            # st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
     # 入力フォーム
     if st.session_state.talktime < 5: # 会話時
         # 念のため初期化
@@ -213,24 +163,10 @@ def chat_page():
             if submit_msg:
                 st.session_state.user_input = user_input
                 st.session_state.log.append({"role": "user", "content": st.session_state.user_input})
-                # count token
-                # if not "total_input_tokens" in st.session_state:
-                    # st.session_state.total_input_tokens = 0
-                # st.session_state.input_tokens = 0
-                # system_tokens = encoding.encode(template)
-                # st.session_state.input_tokens += len(system_tokens)
-                # st.session_state.total_input_tokens += len(system_tokens)
-                # for msg in st.session_state.log:
-                    # tokens = encoding.encode(msg["content"])
-                    # st.session_state.input_tokens += len(tokens)
-                    # st.session_state.total_input_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 5: # 会話終了時
         url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_87jQ6Hj2rjLDdSm"
-        # print total token counts
-        # st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))
-        # st.write("total output tokens : {}※テスト用".format(st.session_state.total_output_tokens))
         st.markdown(
             f"""
             会話が規定回数に達しました。\n\n

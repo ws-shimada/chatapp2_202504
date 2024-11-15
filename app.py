@@ -141,7 +141,6 @@ db = firestore.Client(credentials=creds, project=project_id)
 
 # 入力時の動作
 def click_to_submit():
-    st.write(st.session_state.log)
     # 待機中にも履歴を表示
     chat_placeholder = st.empty()
     with chat_placeholder.container():

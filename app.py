@@ -98,11 +98,12 @@ def click_to_submit():
     # 待機中にも履歴を表示
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for i in range(len(st.session_state.log)):
+            msg = st.session_state.log[i]
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala", key = "user_{}".format(i))
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg["content"], is_user=False, avatar_style="micah", key = "ai_{}".format(i))
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
         st.session_state.response = conversation.predict(input=st.session_state.user_input)
@@ -133,11 +134,12 @@ def chat_page():
         st.session_state.log = []
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for i in range(len(st.session_state.log)):
+            msg = st.session_state.log[i]
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala", key = "user_{}".format(i))
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg["content"], is_user=False, avatar_style="micah", key = "ai_{}".format(i))
         # print token
         # if "input_tokens" in st.session_state:
             # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))

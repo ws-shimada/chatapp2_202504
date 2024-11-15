@@ -93,7 +93,7 @@ def input_id():
     if submit_id:
         with open(prompt_list[1], 'r', encoding='utf-8') as f:
             st.session_state.systemprompt = f.read()
-        st.session_state.model = model_option
+        st.session_state.model = model_list[0]
         st.session_state.user_id = str(user_id)
         st.session_state.state = 2
         st.rerun()

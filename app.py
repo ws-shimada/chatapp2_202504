@@ -142,7 +142,7 @@ def chat_page():
         # if "input_tokens" in st.session_state:
             # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
             # st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
-    if st.session_state.talktime < 8:
+    if st.session_state.talktime < 5:
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"
         with st.container():
@@ -170,7 +170,7 @@ def chat_page():
                     # st.session_state.total_input_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()
-    elif st.session_state.talktime == 8:
+    elif st.session_state.talktime == 5:
         url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_87jQ6Hj2rjLDdSm"
         # print total token counts
         # st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))

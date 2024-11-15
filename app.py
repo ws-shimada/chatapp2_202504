@@ -1,43 +1,46 @@
+# library streamlit
 import streamlit as st
 from streamlit_chat import message
-from langchain_openai.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    MessagesPlaceholder, 
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
 
-# 時間管理
+# library langchain
+from langchain_openai.chat_models import ChatOpenAI
+# from langchain.chains import ConversationChain
+# from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+)
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+# library time
 from time import sleep
 import datetime
-import pytz # タイムゾーン
-global now # PCから現在時刻
+import pytz # convert timezone
+global now # get time from user's PC
 now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
 
-# firebase
+# library firebase
 import firebase_admin
 from google.oauth2 import service_account
 from google.cloud import firestore
 import json
 
-
+# library calculate tokens
 import tiktoken
 
 # プロンプト
 prompt_list = ["preprompt_affirmative_individualizing_nuclear.txt", "preprompt_negative_binding_nuclear.txt"]
 # モデル
-model_list = ["gpt-4-1106-preview", "gpt-4o", "gpt-4o-mini"]
+model_list = ["gpt-4-1106-preview", "gpt-4o"]
 # 待機時間
 sleep_time_list = [5, 5, 5, 5, 5, 5, 5, 5]
 # 表示テキスト
 text_list = ['「原子力発電を廃止すべきか否か」という意見に対して、あなたの意見を入力し、送信ボタンを押してください。', 'あなたの意見を入力し、送信ボタンを押してください。']
 
-# メモリ設定
-if not "memory" in st.session_state:
-    st.session_state.memory = ConversationBufferWindowMemory(k=8, return_messages=True)
 
 # ID入力※テスト用フォーム
 def input_id():
@@ -47,9 +50,42 @@ def input_id():
         # prompt_option = st.selectbox(
             # "プロンプトファイル選択※テスト用フォーム",
             # ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
-        model_option = st.selectbox(
-            "モデル選択※テスト用フォーム",
-            ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
+        # model_option = st.selectbox(
+            # "モデル選択※テスト用フォーム",
+            # ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
+        user_id = st.text_input('学籍番号を入力し、送信ボタンを押してください')
+        submit_id = st.form_submit_button(
+            label="送信",
+            type="primary")
+    if submit_id:
+        with open(prompt_list[1], 'r', encoding='utf-8') as f:
+            st.session_state.systemprompt = f.read()
+        st.session_state.model = model_list[0]
+        st.session_state.user_id = str(user_id)
+        st.session_state.state = 2
+        st.rerun()
+
+# プロンプト設定
+if "systemprompt" in st.session_state:
+    template = st.session_state.systemprompt # st.session_state.systemprompt
+    st.session_state.prompt = ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(template),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{input}")
+    ])
+
+
+# ID入力※テスト用フォーム
+def input_id():
+    if not "user_id" in st.session_state:
+        st.session_state.user_id = "hogehoge"
+    with st.form("id_form", enter_to_submit=False):
+        # prompt_option = st.selectbox(
+            # "プロンプトファイル選択※テスト用フォーム",
+            # ("{}".format(prompt_list[0]), "{}".format(prompt_list[1])),)
+        # model_option = st.selectbox(
+            # "モデル選択※テスト用フォーム",
+            # ("{}".format(model_list[0]), "{}".format(model_list[1]), "{}".format(model_list[2])),)
         user_id = st.text_input('学籍番号を入力し、送信ボタンを押してください')
         submit_id = st.form_submit_button(
             label="送信",
@@ -83,9 +119,19 @@ if "model" in st.session_state:
         api_key= st.secrets.openai_api_key
     )
     # チェインを設定
-    conversation = ConversationChain(llm=chat, memory=st.session_state.memory, prompt=st.session_state.prompt)
-    encoding = tiktoken.encoding_for_model(st.session_state.model)
-
+    st.session_state.runnable = st.session_state.prompt | chat
+    st.session_state.store = {}
+    def get_session_history(session_id: str) -> BaseChatMessageHistory:
+        if session_id not in st.session_state.store:
+            st.session_state.store[session_id] = ChatMessageHistory()
+        return st.session_state.store[session_id]
+    st.session_state.with_message_history = RunnableWithMessageHistory(
+        st.session_state.runnable,
+        get_session_history,
+        input_messages_key="input",
+        history_messages_key="history",
+    )
+    # encoding = tiktoken.encoding_for_model(st.session_state.model)
 
 # Firebase 設定の読み込み
 key_dict = json.loads(st.secrets["firebase"]["textkey"])
@@ -95,17 +141,23 @@ db = firestore.Client(credentials=creds, project=project_id)
 
 # 入力時の動作
 def click_to_submit():
+    st.write(st.session_state.log)
     # 待機中にも履歴を表示
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for i in range(len(st.session_state.log)):
+            msg = st.session_state.log[i]
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala", key = "user_{}".format(i))
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg["content"], is_user=False, avatar_style="micah", key = "ai_{}".format(i))
     with st.spinner("相手からの返信を待っています..."):
         st.session_state.send_time = str(datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
-        st.session_state.response = conversation.predict(input=st.session_state.user_input)
+        st.session_state.response = st.session_state.with_message_history.invoke({"input": st.session_state.user_input},
+                                                            config={"configurable": {"session_id": st.session_state.user_id}},
+                                                           )
+        st.session_state.response = st.session_state.response.content
+        # st.session_state.response = conversation.predict(input=st.session_state.user_input)
         # count token
         # if not "total_output_tokens" in st.session_state:
             # st.session_state.total_output_tokens = 0
@@ -127,22 +179,27 @@ def click_to_submit():
 
 # チャット画面
 def chat_page():
+    # 会話回数とログ初期化
     if not "talktime" in st.session_state:
         st.session_state.talktime = 0
     if not "log" in st.session_state:
         st.session_state.log = []
+    # 履歴表示
     chat_placeholder = st.empty()
     with chat_placeholder.container():
-        for msg in st.session_state.log:
+        for i in range(len(st.session_state.log)):
+            msg = st.session_state.log[i]
             if msg["role"] == "user":
-                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala")
+                message(msg["content"], is_user=True, avatar_style="adventurer", seed="Nala", key = "user_{}".format(i))
             else:
-                message(msg["content"], is_user=False, avatar_style="micah")
+                message(msg["content"], is_user=False, avatar_style="micah", key = "ai_{}".format(i))
         # print token
         # if "input_tokens" in st.session_state:
             # st.write("input tokens : {}※テスト用".format(st.session_state.input_tokens))
             # st.write("output tokens : {}※テスト用".format(st.session_state.output_tokens))
-    if st.session_state.talktime < 5:
+    # 入力フォーム
+    if st.session_state.talktime < 5: # 会話時
+        # 念のため初期化
         if not "user_input" in st.session_state:
             st.session_state.user_input = "hogehoge"
         with st.container():
@@ -170,7 +227,7 @@ def chat_page():
                     # st.session_state.total_input_tokens += len(tokens)
                 st.session_state.state = 3
                 st.rerun()
-    elif st.session_state.talktime == 5:
+    elif st.session_state.talktime == 5: # 会話終了時
         url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_87jQ6Hj2rjLDdSm"
         # print total token counts
         # st.write("total input tokens : {}※テスト用".format(st.session_state.total_input_tokens))

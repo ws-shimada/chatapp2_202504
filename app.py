@@ -147,7 +147,7 @@ def chat_page():
                 st.session_state.state = 3
                 st.rerun()
     elif st.session_state.talktime == 5:
-        url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_87jQ6Hj2rjLDdSm"
+        url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_0qZJiOa936eRiTA"
         st.markdown(
             f"""
             会話が規定回数に達しました。\n\n

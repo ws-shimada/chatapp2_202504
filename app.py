@@ -150,12 +150,9 @@ def chat_page():
         url = "https://nagoyapsychology.qualtrics.com/jfe/form/SV_0qZJiOa936eRiTA"
         st.markdown(
             f"""
-            会話が規定回数に達しました。\n\n
-            以下の"アンケートに戻る"をクリックして、アンケートに回答してください。\n\n
-            アンケートページは別のタブで開きます。\n\n
-            <a href="{url}" target="_blank">アンケートに戻る</a>
-            """,
-            unsafe_allow_html=True)
+            会話が規定回数に達しました。
+            """
+        )
 
 def main():
     hide_streamlit_style = """
